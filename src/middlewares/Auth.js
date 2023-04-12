@@ -2,6 +2,8 @@ const User = require('../models/User');
 
 module.exports = {
     private: async ( req, res, next ) => {
+        //res.json({ notallowed: true});
+        //return;
         if(!req.query.token && !req.body.token){
             res.json({ notallowed: true});
             return;

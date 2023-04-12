@@ -14,7 +14,7 @@ router.get('/ping', (req, res) => {
 	res.json({ pong: true });
 });
 
-router.post('/user/signin', AuthController.signin);
+router.post('/user/signin', Authvalidator.signin, AuthController.signin);
 router.post('/user/signup', AuthValidator.signup, AuthController.signup);
 
 router.get('/states', UserController.getStates);
