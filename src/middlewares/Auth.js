@@ -8,30 +8,22 @@ module.exports = {
             res.json({ notallowed: true});
             return;
         }
-
         let token = '';
-
         if(req.query.token){
             token = req.query.token;
         }
-
         if(req.body.token){
             token = req.body.token;
         }
-
         if(token == ''){
             res.json({invalidtoken: true});
             return;
         }
-
         const user = await User.findOne({token});
-
         if(!user){
             res.json({invalidtoken: true});
             return;
         }
-
         next();
-
     }
 }

@@ -8,6 +8,7 @@ const Auth = require('./middleware/Auth');
 const AuthController = require('./controllers/AuthController');
 const UserController = require('./controllers/UserController');
 const AdsController = require('./controllers/AdsController');
+const CategoryController = require('./controllers/CategoryController');
 
 
 router.get('/ping', (req, res) => {
@@ -27,5 +28,8 @@ router.put('/ad/:id', Auth.private, AdsController.editAction);
 
 router.get('/user/me', Auth.private, UserController.info);
 router.put('/user/me', UserValidator.editAction, Auth.private, UserController.editAction);
+
+router.get('/category', CategoryController.getCategories);
+router.post('/category',Auth.private, CategoryController.setCategory);
 
 module.exports = router;
