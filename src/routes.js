@@ -27,7 +27,7 @@ router.put('/ad/:id', Auth.private, AdsController.editAction);
 router.get('/user/me', Auth.private, UserController.info);
 router.put('/user/me', UserValidator.editAction, Auth.private, UserController.editAction);
 
-router.get('/category', CategoryController.getCategories);
-router.post('/category',Auth.private, CategoryController.setCategory);
+//router.get('/category', CategoryController.getCategories);
+//router.post('/category',Auth.private, CategoryController.setCategory);
 
 module.exports = router;

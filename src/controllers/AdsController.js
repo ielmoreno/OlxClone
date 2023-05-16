@@ -8,7 +8,6 @@ const User = require('../models/User');
 const category = require('../models/Category');
 const Ad = require('../models/Ad');
 const Category = require('../models/Category');
-
 const addImage = async (buffer) => {
     let newName = `${uuidv4()}.jpg`;
     let tmpImg = await jimp.read(buffer);
@@ -28,7 +27,7 @@ module.exports = {
         }
         res.json({ categories });
     },
-    addAction:async (req, res) => {
+    AddAction:async (req, res) => {
         let { title, price, priceneg, desc, cat, token } = req.body;
         const user = await User.findOne({ token }).exec();
         if(!title || !cat){
@@ -198,5 +197,82 @@ module.exports = {
             stateName: stateInfo.name,
             others
         });
+    },
+    editAction: async (req, res) =>{
+        let {id} = req.params;
+        let { title, status, price, priceneg, desc, images, token } = req.body;
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            res.json({ error: 'ID inválido'});
+            return;
+        }
+        const ad = await Ad.findById(id).exec();
+        if(!ad){
+            res.json({ error: 'Anúncio inexistente' })
+            return;
+        }
+        const user = await User.findOne({ token }).exec();
+        if(user._id.toString() !== ad.User){
+            res.json({ error: 'Este anúncio não é seu'})
+            return;
+        }
+        let updates  = {}
+        if(title){
+            updates.title = title;
+        }
+        if(price){
+            price = price
+                    .replace('.', '')
+                    .replace(',','.')
+                    .replace('R$','');
+            
+            price = parseFloat(price);
+            updates.price = price;
+        }
+            if(priceneg){
+            updates.priceNegotiable = priceneg;
+        }
+        if (status){
+            updates.status = status;
+        }
+        if(desc){
+            updates.description = desc;
+        }
+        if(cat){
+            const category = await Category.findOne({ slug: cat }).exec();
+            if(!category){
+                res.json({ error: 'Categoria inexistente' });
+                return;
+            }
+            updates.category = category._id.toString();
+        }
+        if(images){
+            updates.images = images;
+        }
+        await Ad.findByIdAndUpdate(id, { $set: updates });
+        if( req.files && req.files.img){
+            const adI = await Ad.findById(id);
+            if(req.files.img.lenght == undefined) {
+                if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img.mimetype)){
+                    let url = await addImage(req.files.img.data);
+                    adI.images.push({
+                        url,
+                        default: false,
+                    });
+                }
+            }else{
+                for (let i = 0; i< req.files.img.lenght; i++){
+                    if(['image/jpeg', 'image/jpg', 'image/png'].includes(req.files.img.mimetype)){
+                        let url = await addImage(req.files.img[i].data);
+                        adI.images.push({
+                        url,
+                        default: false,
+                        });
+                    }
+                }
+            }
+            adI.images = [...adI.images];
+            await adI.save();
+        }
+        res.json({ error: '' });
     }
 }
